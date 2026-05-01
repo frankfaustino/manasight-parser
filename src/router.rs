@@ -243,9 +243,10 @@ fn extract_timestamp(body: &str) -> Option<DateTime<Utc>> {
 /// 7. Draft complete — draft completion
 /// 8. Event lifecycle — event joins/claims
 /// 9. Rank — rank snapshots
-/// 10. Inventory — inventory from `StartHook`
-/// 11. Match connection state — `STATE CHANGED` transitions
-/// 12. Connection close — `Client.TcpConnection.Close` / `GREConnection.HandleWebSocketClosed`
+/// 10. Deck collection — deck snapshots from `StartHook`
+/// 11. Inventory — inventory from `StartHook`
+/// 12. Match connection state — `STATE CHANGED` transitions
+/// 13. Connection close — `Client.TcpConnection.Close` / `GREConnection.HandleWebSocketClosed`
 ///
 /// The GRE parser may return multiple events from a single entry
 /// (batched `GameStateMessage` values). All other parsers return at
@@ -275,6 +276,7 @@ fn dispatch_to_parsers(entry: &LogEntry, timestamp: Option<DateTime<Utc>>) -> Ve
         .or_else(|| parsers::draft::complete::try_parse(entry, timestamp))
         .or_else(|| parsers::event_lifecycle::try_parse(entry, timestamp))
         .or_else(|| parsers::rank::try_parse(entry, timestamp))
+        .or_else(|| parsers::deck_collection::try_parse(entry, timestamp))
         .or_else(|| parsers::inventory::try_parse(entry, timestamp))
         .or_else(|| parsers::connection_state::try_parse(entry, timestamp))
         .or_else(|| parsers::connection_close::try_parse(entry, timestamp))
